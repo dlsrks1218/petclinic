@@ -1,0 +1,90 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.0.5'
+    id 'io.spring.dependency-management' version '1.1.0'
+    // id 'com.palantir.docker' version '0.34.0'
+    id 'com.google.cloud.tools.jib' version '3.2.0'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-cache'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    implementation 'com.github.ben-manes.caffeine:caffeine'
+    implementation 'org.webjars:jquery:2.2.4'
+    implementation 'org.webjars:jquery-ui:1.11.4'
+    implementation 'org.webjars:bootstrap:3.3.6'
+    implementation 'ro.isdc.wro4j:wro4j-core:1.8.0'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:mysql:1.17.6'
+    testImplementation 'org.jacoco:org.jacoco.core:0.8.2'
+    
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks {
+    test {
+        useJUnitPlatform()
+    }
+
+    bootJar {
+        enabled = true
+        archiveFileName = 'petclinic.jar'
+    }
+
+    // docker {
+    //     name "${project.group}/${bootJar.baseName}"
+    //     files bootJar.archivePath
+    //     buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
+    // }
+
+    jib {
+        from {
+            image = "openjdk:17.0.2-jdk-slim"
+        }
+        to {
+            image = "dlsrks1218/petclinic"
+            tags = ["latest"]
+            auth {
+                username = 'dlsrks1218'
+                password = "qlalf0011!"
+            }
+        }
+        container {
+            mainClass = 'org.springframework.samples.petclinic.PetClinicApplication'
+            environment = [
+                'APP_HOME': '/app',
+                'LOG_HOME': '/app/logs',
+                'SPRING_DATASOURCE_URL': 'jdbc:mysql://mysql:3306/petclinic'
+            ]
+            workingDirectory = '/app'
+            user = 'nobidy'
+            ports = [ '8080' ]
+        }
+    }
+}
