@@ -6,6 +6,7 @@ spec:
   ports:
   - name: mysql-svc
     port: 3306
+    protocol: TCP
     targetPort: 3306
   selector:
     app: mysql
