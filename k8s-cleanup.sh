@@ -44,8 +44,20 @@ fi
 # Define the pattern to match
 PATTERN="www\.test\.com"
 
+# Check if the system is macOS or Linux
+if [[ "$OSTYPE" == "darwin"* ]]; then
+    # macOS
+    SED_INPLACE_OPTION="-i ''"
+elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+    # Linux
+    SED_INPLACE_OPTION="-i"
+else
+    echo "Unsupported operating system"
+    exit 1
+fi
+
 # Use sed to delete the line containing the pattern
-sudo sed -i '' "/$PATTERN/d" /etc/hosts
+sudo sed $SED_INPLACE_OPTION "/$PATTERN/d" /etc/hosts
 
 # Optional: Print a message indicating success
 echo "Line containing $PATTERN deleted from /etc/hosts"

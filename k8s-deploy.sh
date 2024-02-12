@@ -40,6 +40,3 @@ kubectl wait --for=condition=ready pod --timeout=120s -l app=mysql
 
 echo "Wait for petclinic pod to be ready..."
 kubectl wait --for=condition=ready pod --timeout=120s -l app=petclinic
-
-echo "Minikube tunnel starting.."
-minikube tunnel
