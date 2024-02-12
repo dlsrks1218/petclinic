@@ -1,4 +1,20 @@
 #!/bin/sh
+# Function to check if a command exists
+command_exists() {
+    command -v "$@" >/dev/null 2>&1
+}
+
+install_homebrew_macos() {
+    echo "Checking for Homebrew installation..."
+
+    # Check if Homebrew is installed
+    if command_exists brew; then
+        echo "Homebrew is already installed."
+    else
+        echo "Installing Homebrew..."
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    fi
+}
 
 # Function to install Java for Debian-based systems
 install_java_debian() {
@@ -69,6 +85,7 @@ if [ -z "$JAVA_HOME" ]; then
             ;;
         Darwin*)
             install_java_macos
+            install_homebrew_macos
             ;;
         *)
             echo "Unsupported operating system: $OS"
