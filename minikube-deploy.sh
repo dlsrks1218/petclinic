@@ -10,7 +10,7 @@ start_minikube_macos() {
     # Check if Minikube is installed
     if command_exists minikube; then
         echo "Minikube is already installed."
-        minikube start --driver=docker
+        minikube start 
     else
         echo "Updating Homebrew..."
         brew update
@@ -19,7 +19,7 @@ start_minikube_macos() {
         brew install minikube
         echo "Minikube installation completed."
         
-        minikube start --driver=docker
+        minikube start 
     fi
 }
 

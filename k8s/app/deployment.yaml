@@ -1,5 +1,5 @@
 apiVersion: apps/v1
-kind: ReplicaSet
+kind: Deployment
 metadata:
   name: petclinic
 spec:
@@ -21,8 +21,7 @@ spec:
           mountPath: /logs
       containers:
       - name: petclinic
-        image: dlsrks1218/petclinic:latest
-        # image: dlsrks1218/petclinic:new
+        image: dlsrks1218/petclinic:v1
         ports:
         - containerPort: 8080
         volumeMounts:
@@ -30,32 +29,28 @@ spec:
           mountPath: /app/logs
         readinessProbe:
           httpGet:
-            path: /manage/health
+            path: /health
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 10
-          successThreshold: 3
+          successThreshold: 1
         livenessProbe:
           httpGet:
-            path: /manage/health
+            path: /health
             port: 8080
-          initialDelaySeconds: 5
+          initialDelaySeconds: 10
           periodSeconds: 10
           successThreshold: 1
         securityContext:
           runAsUser: 999
-        # resources:
-        #   limits:
-        #     cpu: "1"
-        #     memory: "512Mi"
-        #   requests:
-        #     cpu: "0.5"
-        #     memory: "256Mi"
+      terminationGracePeriodSeconds: 30
       volumes:
       - name: log-volume
         hostPath:
           path: /logs
           type: DirectoryOrCreate
-      # nodeSelector:
-      #   kubernetes.io/hostname: k8s-node1
-      terminationGracePeriodSeconds: 30
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
