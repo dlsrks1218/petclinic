@@ -123,6 +123,16 @@ tasks {
     jib {
         from {
             image = "openjdk:17.0.2-jdk-slim"
+            platforms {
+                platform {
+                    architecture = 'amd64'
+                    os = 'linux'
+                }
+                platform {
+                    architecture = 'arm64'
+                    os = 'linux'
+                }
+            }
         }
         to {
             image = "dlsrks1218/petclinic"
