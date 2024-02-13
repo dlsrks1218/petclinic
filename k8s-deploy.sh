@@ -1,23 +1,8 @@
 #!/bin/sh
 kubectl apply -f k8s/db -f k8s/app --recursive
 
-# Function to check if a command exists
-command_exists() {
-    command -v "$@" > /dev/null 2>&1
-}
-
-# Check if Minikube is installed
-if command_exists minikube; then
-    # Use Minikube's IP
-    CURRENT_IP=$(minikube ip)
-    # # Set proxy, tunneling for Minikube
-    echo "Set proxy for minikube"
-    kubectl proxy --address 0.0.0.0 --port 30001 --accept-hosts='^*$' >/dev/null 2>&1 &
-    # minikube tunnel >/dev/null 2>&1 &
-else
-    # Use Bare Metal Kubernetes Node's IP
-    CURRENT_IP=$(hostname -I | awk '{print $2}')
-fi
+# Use Bare Metal Kubernetes Node's IP
+CURRENT_IP=$(hostname -I | awk '{print $2}')
 
 # # Append the entry to /etc/hosts
 # sudo cat <<EOF >> /etc/hosts

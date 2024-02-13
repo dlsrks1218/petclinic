@@ -1,11 +1,29 @@
 #!/bin/sh
-echo "Updating Homebrew..."
-brew update
+# Function to check if a command exists
+command_exists() {
+    command -v "$@" >/dev/null 2>&1
+}
 
-echo "Installing Minikube..."
-brew install minikube
+start_minikube_macos() {
+    echo "Checking for Minikube installation..."
 
-echo "Minikube installation completed."
+    # Check if Minikube is installed
+    if command_exists minikube; then
+        echo "Minikube is already installed."
+        minikube start --driver=docker
+    else
+        echo "Updating Homebrew..."
+        brew update
+
+        echo "Installing Minikube..."
+        brew install minikube
+        echo "Minikube installation completed."
+        
+        minikube start --driver=docker
+    fi
+}
+
+start_minikube_macos
 
 kubectl apply -f k8s/db -f k8s/app --recursive
 
