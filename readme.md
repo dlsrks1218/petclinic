@@ -48,12 +48,20 @@
                 - 127.0.0.1:<NODE_PORT> -> Petclinic의 Nginx Ingress Controller 접근 가능하며 tunnel 명령어 수행시 127.0.0.1: 뒤의 NODE_PORT 정보는 아래 로컬 브라우저 접근 시 필요합니다.
                 - 로컬 /etc/hosts에 테스트 도메인 www.test.com이 127.0.0.1로 매핑되어 있습니다
             - **로컬 브라우저에서 www.test.com:<NODE_PORT>로 해당 Petclinic 앱에 접근합니다.**
-4. **롤링 업데이트**
-    - **`kubectl set image deployment -f k8s/app/deployment.yaml petclinic=dlsrks1218/petclinic:v2`**
-        - 최초 실행 시 petclinic 앱은 v1 상태이며, 위 명령어를 통해 v2로 롤링 업데이트를 수행합니다.
-    - **`kubectl rollout status deployment petclinic`**
-        - 위 명령어로 배포 상태 확인
-        - 혹은 로컬 브라우저에서 www.test.com:<NODE_PORT>로 접근 중인 화면을 새로고침하여 정상 작동함 확인
+4. **DB 재실행 시 데이터 보존 확인 및 롤링 업데이트**
+    - DB 재실행 시 데이터 보존 확인
+        - **`kubectl exec -it mysql-0 /bin/sh`로 파드 접근 후 `mysql -u root -p` 실행, 패스워드는 docker-compose.yaml에 있습니다.**
+        - **`use petclinic` DB 접근**
+        - **`CREATE TABLE test_table (id INT PRIMARY KEY, value VARCHAR(50));` 테스트 테이블 생성** 
+        - **`INSERT INTO test_table (id, value) VALUES (1, 'test data');` 테스트 데이터 입력**
+        - **`kubectl delete pod mysql-0` 수행하여 파드 재생성 확인 후 위처럼 mysql 접근하여 데이터 확인**
+        - **`select * from test_table` 로 위에서 입력한 데이터 있는지 확인** 
+    - 배포할 때 스케일 인,아웃 시 트래픽 유실 안되는 것 확인
+        - **`kubectl set image deployment -f k8s/app/deployment.yaml petclinic=dlsrks1218/petclinic:v2`**
+            - 최초 실행 시 petclinic 앱은 v1 상태이며, 위 명령어를 통해 v2로 롤링 업데이트를 수행합니다.
+        - **`kubectl rollout status deployment petclinic`**
+            - 위 명령어로 배포 상태 확인
+            - 혹은 로컬 브라우저에서 www.test.com:<NODE_PORT>로 접근 중인 화면을 새로고침하여 정상 작동함 확인
 5. **리소스 정리**
     - **`./k8s-cleanup.sh` 실행**
         - 스크립트 설명
@@ -78,7 +86,7 @@
 - 어플리케이션 프로세스는 root 계정이 아닌 uid:999로 실행합니다.
     - jib에서 도커 이미지 빌드 시 uid:999 지정
 - DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정합니다.
-    - 
+    - 테스트 데이터 입력 후 파드 삭제, 재생성 이후 데이터 그대로 있는지 확인
 - 어플리케이션과 DB는 cluster domain으로 통신합니다.
     - cluster 내부에서 서비스 명으로 App과 DB 통신하도록 수행
 - ingress-controller를 통해 어플리케이션에 접속이 가능해야 합니다.
