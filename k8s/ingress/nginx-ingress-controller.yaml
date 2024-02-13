@@ -576,8 +576,8 @@ spec:
         - --namespace=$(POD_NAMESPACE)
         - --patch-mutating=false
         - --secret-name=ingress-nginx-admission
-        # - --patch-failure-policy=Fail
-        - --patch-failure-policy=Ignore
+        - --patch-failure-policy=Fail
+        # - --patch-failure-policy=Ignore
         env:
         - name: POD_NAMESPACE
           valueFrom:
@@ -628,8 +628,8 @@ webhooks:
       name: ingress-nginx-controller-admission
       namespace: ingress-nginx
       path: /networking/v1/ingresses
-  # failurePolicy: Fail
-  failurePolicy: Ignore
+  failurePolicy: Fail
+  # failurePolicy: Ignore
   matchPolicy: Equivalent
   name: validate.nginx.ingress.kubernetes.io
   rules:
