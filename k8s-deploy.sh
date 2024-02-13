@@ -10,22 +10,20 @@ command_exists() {
 if command_exists minikube; then
     # Use Minikube's IP
     CURRENT_IP=$(minikube ip)
-    # Set proxy, tunneling for Minikube
+    # # Set proxy, tunneling for Minikube
     echo "Set proxy, tunnel for minikube"
     kubectl proxy --address 0.0.0.0 --port 30001 --accept-hosts='^*$' >/dev/null 2>&1 &
-    minikube tunnel >/dev/null 2>&1 &
+    # minikube tunnel >/dev/null 2>&1 &
 else
     # Use Bare Metal Kubernetes Node's IP
     CURRENT_IP=$(hostname -I | awk '{print $2}')
 fi
 
-# get current IP
-CURRENT_IP=$(hostname -I | awk '{print $2}')
-
-# Append the entry to /etc/hosts
-cat <<EOF >> /etc/hosts
-$CURRENT_IP www.test.com
-EOF
+# # Append the entry to /etc/hosts
+# sudo cat <<EOF >> /etc/hosts
+# $CURRENT_IP www.test.com
+# EOF
+echo "$CURRENT_IP www.test.com" | sudo tee -a /etc/hosts
 
 echo "Add $CURRENT_IP www.test.com to /etc/hosts"
 
@@ -42,3 +40,6 @@ kubectl wait --for=condition=ready pod --timeout=120s -l app=mysql
 
 echo "Wait for petclinic pod to be ready..."
 kubectl wait --for=condition=ready pod --timeout=120s -l app=petclinic
+
+echo "Minikube tunnel starting.."
+minikube tunnel
