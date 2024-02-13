@@ -69,12 +69,20 @@
 - 어플리케이션의 log는 host의 `/logs` 에 적재되도록 합니다.
     - 쿠버네티스 노드의 host의 /log 경로에 로그 적재하도록 설정
 - 정상 동작 여부를 반환하는 api를 구현하며, 10초에 한번씩 체크합니다.
-    - livenessProbe, readinessProbe 구현을 통해 해당 API 확인
+    - /health API 구현하여 10초마다 체크하도록 설정
+        - src/main/java/org/springframework/samples/petclinic/system/HealthCheckController.java
 - 종료 시 30초 이내에 프로세스가 종료되지 않으면 SIGKILL로 강제 종료합니다.
+    - terminationGracePeriodSeconds 설정하여 확인
 - 배포 시 scale-in, out 상황에서 유실되는 트래픽은 없어야 합니다.
+    - deployment의 배포 전략을 rolling update로 하여 유실 트래픽 없도록 설정
 - 어플리케이션 프로세스는 root 계정이 아닌 uid:999로 실행합니다.
+    - jib에서 도커 이미지 빌드 시 uid:999 지정
 - DB도 kubernetes에서 실행하며 재 실행 시에도 변경된 데이터는 유실되지 않도록 설정합니다.
+    - 
 - 어플리케이션과 DB는 cluster domain으로 통신합니다.
+    - cluster 내부에서 서비스 명으로 App과 DB 통신하도록 수행
 - ingress-controller를 통해 어플리케이션에 접속이 가능해야 합니다.
+    - nginx-ingress-controller를 생성하여 어플리케이션 접속
 - namespace는 default를 사용합니다.
+    - default namespace 실행
 - README.md 파일에 실행 방법 및 답변을 기술합니다.
