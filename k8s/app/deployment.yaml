@@ -1,9 +1,9 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: ReplicaSet
 metadata:
   name: petclinic
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: petclinic
@@ -12,28 +12,50 @@ spec:
       labels:
         app: petclinic
     spec:
+      initContainers:
+      - name: init-logs
+        image: busybox
+        command: ['sh', '-c', 'mkdir -p /logs && chown -R 999:999 /logs && chmod -R 775 /logs']
+        volumeMounts:
+        - name: log-volume
+          mountPath: /logs
       containers:
       - name: petclinic
         image: dlsrks1218/petclinic:latest
+        # image: dlsrks1218/petclinic:new
         ports:
         - containerPort: 8080
         volumeMounts:
         - name: log-volume
           mountPath: /app/logs
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 8080
-          initialDelaySeconds: 10
-          periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /welcome
+            path: /manage/health
             port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 3
+        livenessProbe:
+          httpGet:
+            path: /manage/health
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          successThreshold: 1
         securityContext:
           runAsUser: 999
+        # resources:
+        #   limits:
+        #     cpu: "1"
+        #     memory: "512Mi"
+        #   requests:
+        #     cpu: "0.5"
+        #     memory: "256Mi"
       volumes:
       - name: log-volume
         hostPath:
           path: /logs
+          type: DirectoryOrCreate
+      # nodeSelector:
+      #   kubernetes.io/hostname: k8s-node1
       terminationGracePeriodSeconds: 30

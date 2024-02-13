@@ -16,7 +16,7 @@
             <maxHistory>7</maxHistory>
         </rollingPolicy>
     </appender>
-    
+
     <logger name="org.springframework" level="info" />
     <logger name="com.mysql" level="debug" />
 

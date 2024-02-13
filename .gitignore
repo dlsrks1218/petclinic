@@ -14,3 +14,5 @@ target/*
 _site/
 build/*
 .gradle
+logs
+LOG_HOME_IS_UNDEFINED

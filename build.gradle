@@ -2,7 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.0.5'
     id 'io.spring.dependency-management' version '1.1.0'
-    // id 'com.palantir.docker' version '0.34.0'
+    id 'com.palantir.docker' version '0.35.0'
     id 'com.google.cloud.tools.jib' version '3.2.0'
 }
 
@@ -47,20 +47,77 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 }
 
+import org.apache.tools.ant.taskdefs.condition.Os
+
 tasks {
     test {
         useJUnitPlatform()
+        systemProperty 'spring.profiles.active', 'test'
     }
 
     bootJar {
         enabled = true
         archiveFileName = 'petclinic.jar'
     }
+    
+    task DBInit() {
+        doLast {
+            // Run docker-compose up -d
+            exec {
+                commandLine 'docker-compose', 'up', '-d'
+            }
+
+            // Wait for 5 seconds
+            sleep(5000)
+
+            // Get the CONTAINER ID
+            def containerIdStdout = new ByteArrayOutputStream()
+            exec {
+                commandLine 'docker', 'ps', '--filter', 'label=com.docker.compose.project=petclinic', '--format', '{{.ID}}'
+                standardOutput = containerIdStdout
+            }
+            def containerId = containerIdStdout.toString().trim()
+
+            // Check if container ID is found
+            if (containerId) {
+                println "Watching logs of container: $containerId"
+
+                // Tail the logs and search for the desired string
+                def process
+                    try {
+                        def command = Os.isFamily(Os.FAMILY_WINDOWS) ? 
+                                    "cmd /c docker logs -f $containerId" :
+                                    "sh -c 'docker logs -f $containerId'"
+                        process = Runtime.getRuntime().exec(command)
+
+                        // Read the output from the process
+                        new BufferedReader(new InputStreamReader(process.inputStream)).withReader { reader ->
+                            String line
+                            while ((line = reader.readLine()) != null) {
+                                println line
+                                if (line.contains("MySQL init process done.")) {
+                                    println "MySQL init process done."
+                                    break
+                                }
+                            }
+                        }
+                    } catch (Exception e) {
+                        println "Error reading logs: ${e.message}"
+                    } finally {
+                        process?.destroy()
+                    }
+            } else {
+                println "Container with label 'com.docker.compose.project=petclinic' not found."
+            }
+        }
+    }
 
     // docker {
-    //     name "${project.group}/${bootJar.baseName}"
+    //     println("gradle docker-plugin start = ${project.name}:${project.version}")
+    //     // name "${project.name}:${project.version}"
+    //     name 'hub.docker.com/dlsrks1218/petclinic-new:latest'
     //     files bootJar.archivePath
-    //     buildArgs(['JAR_FILE': "${bootJar.archiveName}"])
+    //     buildArgs(['JAR_FILE': tasks.bootJar.outputs.files.singleFile.name])
     // }
 
     jib {
@@ -75,16 +132,20 @@ tasks {
                 password = "qlalf0011!"
             }
         }
+
         container {
             mainClass = 'org.springframework.samples.petclinic.PetClinicApplication'
             environment = [
                 'APP_HOME': '/app',
                 'LOG_HOME': '/app/logs',
-                'SPRING_DATASOURCE_URL': 'jdbc:mysql://mysql:3306/petclinic'
             ]
             workingDirectory = '/app'
-            user = 'nobidy'
+            user = '999'
             ports = [ '8080' ]
         }
+    }
+
+    task DBShutDown(type:Exec) {
+        commandLine 'docker-compose', 'down'
     }
 }
