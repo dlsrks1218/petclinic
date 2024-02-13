@@ -1,9 +1,12 @@
 # 환경
+
 해당 프로젝트는 Gradle로 App과 Docker Image를 빌드하여 GitHub 퍼블릭 리포지토리에 푸시하고 Linux 기반의 베어메탈이나 가상머신에 설치된 쿠버네티스 클러스터 또는 MacOS 상 Minikube에 업로드된 이미지를 기반으로 배포하는 프로젝트 입니다.
+
 1. 베어메탈이나 가상머신의 경우, 이미 쿠버네티스가 설치되어 있다고 가정하고 Java 설치 후 Gradle로 빌드 후 배포하여 해당 이미지로 쿠버네티스에 배포하는 시나리오 입니다.
 2. MacOS에서 실행하는 경우, Docker Desktop, Minikube를 설치한 후 Gradle로 빌드하여 해당 이미지로 배포하는 시나리오 입니다.
 
-다만 두 환경 모두 로컬 환경에서 실행하므로 AWS 환경에서의 Load Balancer를 통한 외부 접근이 어려운 관계로, 로컬의 /etc/hosts를 수정하여 임의의 도메인(www.test.com)에 NodePort로 접근하여 확인하도록 합니다.
+다만 두 환경 모두 로컬 환경에서 실행하므로 (예시:)AWS 환경에서의 Load Balancer 등을 통한 외부 접근이 어려운 관계로, 로컬의 /etc/hosts를 수정하여 임의의 도메인(www.test.com)에 NodePort로 접근하여 확인하도록 합니다.
+
 - 1번의 경우, 실행 완료 후 쿠버네티스 클러스터 내에서 `curl www.test.com:<NODE_PORT>`로 결과를 확인합니다.
 - 2번의 경우, 아래 가이드에 따라 실행 완료 후 minikube tunnel 기능을 통해 외부로 노출하여 로컬 브라우저에서 `127.0.0.1:<NODE_PORT>` 혹은 `www.test.com:<NODE_PORT>`로 확인합니다.
 
@@ -12,6 +15,7 @@
 - openjdk@17 (17.0.10)
 
 # 실행 방법
+
 1. **포크한 리포지토리를 테스트할 pc에 clone**
     - `git clone https://github.com/dlsrks1218/petclinic.git`
 2. **프로젝트 경로로 이동**
