@@ -11,7 +11,7 @@ if command_exists minikube; then
     # Use Minikube's IP
     CURRENT_IP=$(minikube ip)
     # # Set proxy, tunneling for Minikube
-    echo "Set proxy, tunnel for minikube"
+    echo "Set proxy for minikube"
     kubectl proxy --address 0.0.0.0 --port 30001 --accept-hosts='^*$' >/dev/null 2>&1 &
     # minikube tunnel >/dev/null 2>&1 &
 else

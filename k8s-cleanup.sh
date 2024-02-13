@@ -31,16 +31,6 @@ else
     echo "Minikube is not installed."
 fi
 
-# # Check and delete if "www.test.com" exists in /etc/hosts
-# if grep -q "www.test.com" /etc/hosts; then
-#     echo "Removing line containing 'www.test.com' from /etc/hosts..."
-#     sudo sed -i '/www\.test\.com/d' /etc/hosts
-#     echo "Line containing 'www.test.com' removed from /etc/hosts."
-# else
-#     echo "'www.test.com' not found in /etc/hosts."
-# fi
-#!/bin/bash
-
 # Define the pattern to match
 PATTERN="www\.test\.com"
 
